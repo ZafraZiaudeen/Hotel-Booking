@@ -1,5 +1,6 @@
 import HotelCard from "./HotelCard";
-
+import LocationTab from "./LocationTab";
+import { useState } from "react";
 export default function HotelListing() {
     // Sample hotels array (Replace this with real data from props or API)
     const hotels = [
@@ -85,6 +86,22 @@ export default function HotelListing() {
         }
     ];
 
+    const locations = [
+        "All","France", "Australia", "Japan", "Italy"
+    ]
+
+    const [selectedLocation,setSelectedLocation] = useState("All");
+
+    const handleSelectedLocation = (location) => {
+        setSelectedLocation(location);
+    }
+    const filteredHotels = selectedLocation === "All"
+    ? hotels
+    : hotels.filter((hotel) => {
+        return hotel.location.toLowerCase().includes(selectedLocation.toLowerCase());
+    });
+
+
     return (
         <section className="px-8 py-8 lg:py-16">
             <div className="mb-12">
@@ -95,9 +112,16 @@ export default function HotelListing() {
                     Discover the most trending hotels worldwide for an unforgettable experience.
                 </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <div className="flex items-center gap-x-4 mt-4 ">
+                {locations.map((location) => {
+                    return <LocationTab selectedLocation={selectedLocation} name={location} onClick={handleSelectedLocation}/>;
+                })}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
                 {
-                    hotels.map((hotel) => {
+                    filteredHotels.map((hotel) => {
                         return (
                             <HotelCard hotel={hotel} key={hotel._id} />
                         );
