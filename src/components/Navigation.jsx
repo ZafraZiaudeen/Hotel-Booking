@@ -1,18 +1,25 @@
 import { Button } from "@/components/ui/button";
 import { Globe } from "lucide-react";
+import { Link } from "react-router";
+import { useState } from "react";
+import {useSelector} from "react-redux";
 
 function Navigation() {
+  const userSlice= useSelector(state => state.user);
   return (
     <nav className="z-10 bg-black flex justify-between px-8 text-white py-4">
       {/* Left Section */}
       <div className="flex items-center space-x-8">
-        <a href="/" className="text-2xl font-bold">
+        <Link to="/" className="text-2xl font-bold">
           Horizone
-        </a>
+        </Link>
         <div className="hidden md:flex space-x-6">
-          <a href="/" className="transition-colors">
+          <Link to="/" className="transition-colors">
             Home
-          </a>
+          </Link>
+          <Link to="/hotels/:id" className="transition-colors">
+            Hotel
+          </Link>
         </div>
       </div>
 
@@ -22,13 +29,14 @@ function Navigation() {
           <Globe className="h-5 w-5 mr-2" />
           EN
         </Button>
-        <Button variant="ghost" asChild>
-            <a href="/sign-in">Login</a>
+        {/* <Button variant="ghost" asChild>
+            <Link to="/sign-in">Login</Link>
           </Button>
           <Button asChild>
-            <a href="/sign-up">Sign Up</a>
+            <Link to="/sign-up">Sign Up</Link>
           </Button>
-       
+        */}
+        <p>{userSlice.user.name}</p>
       </div>
     </nav>
   );
