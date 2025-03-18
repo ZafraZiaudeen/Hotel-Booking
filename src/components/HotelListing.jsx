@@ -4,15 +4,15 @@ import { useState } from "react";
 import { getHotels } from "@/lib/api/hotels";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { Button } from "@/components/ui/button";
+import { setUser } from "@/lib/features/userSlice";
+import { useDispatch } from "react-redux";
+import { useGetHotelsQuery } from "@/lib/api";
 
 
 export default function HotelListing() {
-    // Sample hotels array (Replace this with real data from props or API)
-   const [hotels,setHotels]=useState([])
-   const [isLoading,setIsLoading]=useState(true);//for loading state
-   const [isError,setIsError]=useState(false); //for error state
-   const [error,setError]=useState("");   //for error state
-  
+ const{data:hotels,isLoading,isError,error} = useGetHotelsQuery();
+    const dispatch = useDispatch();
    const userSlice= useSelector(state => state.user);
    
   const locations = [
@@ -30,16 +30,6 @@ export default function HotelListing() {
         return hotel.location.toLowerCase().includes(selectedLocation.toLowerCase());
     });
 
-    useEffect(() => {
-        getHotels().then((data)=>{ //promise chaining
-            setHotels(data);
-        }).catch((error)=>{
-            setIsError(true);
-            setError(error.message);
-        }).finally(()=>{
-            setIsLoading(false);
-        });
-},[]);
 
 if(isLoading){
     return (
@@ -105,6 +95,10 @@ if(isError){
         <section className="px-8 py-8 lg:py-16">
             <div className="mb-12">
             <p>Hello, {userSlice.user.name}</p>
+            <Button onClick={() =>{
+              dispatch(setUser({name:"Ziaudeen"}));
+            }}>click me</Button>
+            
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
                     Top trending hotels worldwide
                 </h2>
