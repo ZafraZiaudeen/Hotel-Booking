@@ -5,7 +5,6 @@ import { useState } from "react";
 import {useSelector} from "react-redux";
 
 function Navigation() {
-  const userSlice= useSelector(state => state.user);
   return (
     <nav className="z-10 bg-black flex justify-between px-8 text-white py-4">
       {/* Left Section */}
@@ -17,8 +16,8 @@ function Navigation() {
           <Link to="/" className="transition-colors">
             Home
           </Link>
-          <Link to="/hotels/:id" className="transition-colors">
-            Hotel
+          <Link to="/hotels/create" className="transition-colors">
+            Create Hotel
           </Link>
         </div>
       </div>
@@ -29,14 +28,14 @@ function Navigation() {
           <Globe className="h-5 w-5 mr-2" />
           EN
         </Button>
-        {/* <Button variant="ghost" asChild>
+        <Button variant="ghost" asChild>
             <Link to="/sign-in">Login</Link>
           </Button>
           <Button asChild>
             <Link to="/sign-up">Sign Up</Link>
           </Button>
-        */}
-        <p>{userSlice.user.name}</p>
+       
+        {/* <p>{userSlice.user.name}</p> */}
       </div>
     </nav>
   );

@@ -9,7 +9,17 @@ export const api = createApi({
         getHotels: builder.query({
             query: () => "hotels",
         }),
+        getHotelById: builder.query({
+            query: (id) => `hotels/${id}`,
+        }),
+        createHotel: builder.mutation({  //Mutation:for post,put and delete
+            query: (hotel) => ({
+                url: `hotels`,
+                method: "POST",
+                body: hotel,
+            }),
+        }),
     }),
 });
 
-export const { useGetHotelsQuery } = api; //this is a put,this encapsulates the query and the hook like loading state, error state, data, etc.
+export const { useGetHotelsQuery,useGetHotelByIdQuery,useCreateHotelMutation } = api; //this is a put,this encapsulates the query and the hook like loading state, error state, data, etc.

@@ -1,19 +1,10 @@
 import HotelCard from "./HotelCard";
 import LocationTab from "./LocationTab";
 import { useState } from "react";
-import { getHotels } from "@/lib/api/hotels";
-import { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { Button } from "@/components/ui/button";
-import { setUser } from "@/lib/features/userSlice";
-import { useDispatch } from "react-redux";
 import { useGetHotelsQuery } from "@/lib/api";
-
 
 export default function HotelListing() {
  const{data:hotels,isLoading,isError,error} = useGetHotelsQuery();
-    const dispatch = useDispatch();
-   const userSlice= useSelector(state => state.user);
    
   const locations = [
         "All","France", "Australia", "Japan", "Italy"
@@ -94,11 +85,6 @@ if(isError){
     return (
         <section className="px-8 py-8 lg:py-16">
             <div className="mb-12">
-            <p>Hello, {userSlice.user.name}</p>
-            <Button onClick={() =>{
-              dispatch(setUser({name:"Ziaudeen"}));
-            }}>click me</Button>
-            
                 <h2 className="text-3xl md:text-4xl font-bold mb-4">
                     Top trending hotels worldwide
                 </h2>

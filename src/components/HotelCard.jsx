@@ -1,20 +1,8 @@
 import { MapPin, Star } from "lucide-react";
-// import Button from "@/components/ui/button";
-// import { useState } from "react";
-
+import { Link } from "react-router";
 function HotelCard(props) {
-    // const [count, setCount] = useState(0);
-
-    // function handleClick() {
-    //     setCount(count + 1); // Updates state and triggers re-render
-    // }
-
     return (
-        <div
-            // href={`/hotel/${props.hotel._id}`} 
-            key={props.hotel._id}
-            className="block group relative"
-        >
+        <Link to={`/hotels/${props.hotel._id}`}  key={props.hotel._id} className="block group relative">
             <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
                 <img
                     src={props.hotel.image}
@@ -39,13 +27,7 @@ function HotelCard(props) {
                     <span className="text-xl font-bold">${props.hotel.price}</span>
                 </div>
             </div>
-            {/* 
-            <div className="mt-4">
-                <p>Count: {count}</p>
-                <Button onClick={handleClick}>Add +1</Button>        
-            </div> 
-            */}
-        </div>
+        </Link>
     );
 }
 
