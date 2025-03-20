@@ -3,6 +3,7 @@ import { Globe } from "lucide-react";
 import { Link } from "react-router";
 import { useState } from "react";
 import {useSelector} from "react-redux";
+import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
 
 function Navigation() {
   return (
@@ -28,14 +29,21 @@ function Navigation() {
           <Globe className="h-5 w-5 mr-2" />
           EN
         </Button>
+        <SignedOut>
         <Button variant="ghost" asChild>
             <Link to="/sign-in">Login</Link>
           </Button>
           <Button asChild>
             <Link to="/sign-up">Sign Up</Link>
           </Button>
+        </SignedOut>
+       <SignedIn>
+        <UserButton />
+        <Button asChild>
+            <Link to="/account">My Account</Link>
+          </Button>
+       </SignedIn>
        
-        {/* <p>{userSlice.user.name}</p> */}
       </div>
     </nav>
   );
