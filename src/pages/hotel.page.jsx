@@ -1,38 +1,51 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useGetHotelByIdQuery,useCreateBookingMutation } from "@/lib/api";
-import {
-  Coffee,
-  MapPin,
-  MenuIcon as Restaurant,
-  Star,
-  Tv,
-  Wifi,
-} from "lucide-react";
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { useGetHotelByIdQuery, useCreateBookingMutation } from "@/lib/api"
+import { Coffee, MapPin, MenuIcon as Restaurant, Star, Tv, Wifi } from "lucide-react"
+import { useParams, useNavigate } from "react-router" 
+import { Skeleton } from "@/components/ui/skeleton"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import BookingForm from "@/components/createBookingForm"
+import { useUser } from "@clerk/clerk-react" 
 
-import { useParams } from "react-router";
-import { Skeleton } from "@/components/ui/skeleton";
+// Map of amenity IDs to their display components (unchanged)
+const amenityComponents = {
+  wifi: { icon: Wifi, label: "Free Wi-Fi" },
+  restaurant: { icon: Restaurant, label: "Restaurant" },
+  tv: { icon: Tv, label: "Flat-screen TV" },
+  coffee: { icon: Coffee, label: "Coffee maker" },
+  pool: { icon: () => <span>🏊</span>, label: "Swimming Pool" },
+  spa: { icon: () => <span>💆</span>, label: "Spa" },
+  gym: { icon: () => <span>🏋️</span>, label: "Fitness Center" },
+  parking: { icon: () => <span>🅿️</span>, label: "Free Parking" },
+  ac: { icon: () => <span>❄️</span>, label: "Air Conditioning" },
+  bar: { icon: () => <span>🍸</span>, label: "Bar" },
+}
 
 export default function HotelPage() {
-  const { id } = useParams();
-  const { data: hotel, isLoading, isError, error } = useGetHotelByIdQuery(id);
-  const [createBooking, { isLoading:isCreateBookingLoading }] = useCreateBookingMutation();
-  const handleBook =async () => {
-    try{
-      await createBooking({
-        hotelId: id,
-        checkIn: new Date(),
-        checkOut: new Date(),
-        roomNumber:200,
-      })
-    }catch(error){
-      console.log(error);
+  const { id } = useParams()
+  const navigate = useNavigate() 
+  const { data: hotel, isLoading, isError } = useGetHotelByIdQuery(id)
+  const [isBookingFormOpen, setIsBookingFormOpen] = useState(false)
+  const { isLoaded, isSignedIn } = useUser() 
+
+  const handleBookingSubmit = async (bookingData) => {
+    setIsBookingFormOpen(false);
+  };
+
+  const handleBookNowClick = () => {
+    if (!isLoaded) return;
+    if (!isSignedIn) {
+      navigate("/sign-in");
+    } else {
+      setIsBookingFormOpen(true);
     }
   };
 
   if (isLoading)
     return (
+     
       <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
@@ -80,9 +93,9 @@ export default function HotelPage() {
           </div>
         </div>
       </div>
-    );
+    )
 
-  if (isError) return <p className="text-red">Error: {isError.message}</p>;
+  if (isError) return <p className="text-red">Error loading hotel data</p>
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
@@ -90,16 +103,11 @@ export default function HotelPage() {
         <div className="space-y-4">
           <div className="relative w-full h-[400px]">
             <img
-              src={hotel.image}
+              src={hotel.image || "/placeholder.svg"}
               alt={hotel.name}
-              className="absolute object-cover rounded-lg"
+              className="absolute object-cover rounded-lg w-full h-full"
             />
           </div>
-          {/* <div className="flex space-x-2">
-            <Badge variant="secondary">Rooftop View</Badge>
-            <Badge variant="secondary">French Cuisine</Badge>
-            <Badge variant="secondary">City Center</Badge>
-          </div> */}
         </div>
         <div className="space-y-6">
           <div className="flex justify-between items-start">
@@ -117,44 +125,75 @@ export default function HotelPage() {
           </div>
           <div className="flex items-center space-x-1">
             <Star className="h-5 w-5 fill-primary text-primary" />
-            <span className="font-bold">{hotel?.rating ?? "No rating"}</span>
-            <span className="text-muted-foreground">
-              ({hotel?.reviews?.toLocaleString() ?? "No"} reviews)
-            </span>
+            <span className="font-bold">{hotel.rating ?? "No rating"}</span>
+            <span className="text-muted-foreground">({hotel.reviews?.toLocaleString() ?? "No"} reviews)</span>
           </div>
           <p className="text-muted-foreground">{hotel.description}</p>
           <Card>
             <CardContent className="p-4">
               <h2 className="text-xl font-semibold mb-4">Amenities</h2>
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center">
-                  <Wifi className="h-5 w-5 mr-2" />
-                  <span>Free Wi-Fi</span>
-                </div>
-                <div className="flex items-center">
-                  <Restaurant className="h-5 w-5 mr-2" />
-                  <span>Restaurant</span>
-                </div>
-                <div className="flex items-center">
-                  <Tv className="h-5 w-5 mr-2" />
-                  <span>Flat-screen TV</span>
-                </div>
-                <div className="flex items-center">
-                  <Coffee className="h-5 w-5 mr-2" />
-                  <span>Coffee maker</span>
-                </div>
+                {hotel.amenities && hotel.amenities.length > 0 ? (
+                  hotel.amenities.map((amenityId) => {
+                    const amenity = amenityComponents[amenityId]
+                    if (!amenity) return null
+                    const Icon = amenity.icon
+                    return (
+                      <div key={amenityId} className="flex items-center">
+                        {typeof Icon === "function" ? (
+                          <span className="mr-2 text-xl">
+                            <Icon />
+                          </span>
+                        ) : (
+                          <Icon className="h-5 w-5 mr-2" />
+                        )}
+                        <span>{amenity.label}</span>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <p className="text-muted-foreground">No amenities listed</p>
+                )}
               </div>
             </CardContent>
           </Card>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-2xl font-bold">${hotel.price}</p>
-              <p className="text-sm text-muted-foreground">per night</p>
-            </div>
-            <Button size="lg" onClick={handleBook}>Book Now</Button>
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Room Types</h2>
+            {hotel.rooms && hotel.rooms.length > 0 ? (
+              <div className="space-y-2">
+                {hotel.rooms.map((room, index) => (
+                  <div key={index} className="flex justify-between items-center">
+                    <span className="font-medium">{room.type}</span>
+                    <span className="text-xl font-bold">
+                      ${room.price} <span className="text-sm text-muted-foreground">/ night</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-muted-foreground">No room types available</p>
+            )}
+            <Button size="lg" onClick={handleBookNowClick} className="w-full mt-4">
+          Book Now
+        </Button>
           </div>
         </div>
       </div>
+
+      <Dialog open={isBookingFormOpen} onOpenChange={setIsBookingFormOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Book Your Stay</DialogTitle>
+            <DialogDescription>Complete the form below to book your stay at {hotel?.name}</DialogDescription>
+          </DialogHeader>
+          <BookingForm
+            hotel={hotel}
+            onSubmit={handleBookingSubmit} 
+            isLoading={false} 
+            onBookingSuccess={() => setIsBookingFormOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
-  );
+  )
 }

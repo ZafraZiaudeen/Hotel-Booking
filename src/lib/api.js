@@ -14,7 +14,7 @@ export const api = createApi({
       }
     }
   }),
-  tagTypes: ["Hotels"], 
+  
     endpoints: (builder) => ({ // endpoints means the calls that we want to make to the backend from frontend
         getHotels: builder.query({
             query: () => "hotels",
@@ -33,7 +33,7 @@ export const api = createApi({
                 method: "POST",
                 body: hotel,
               }),
-              invalidatesTags: ["Hotels"],
+              
         }),
 
         createBooking: builder.mutation({  //Mutation:for post,put and delete
@@ -42,8 +42,29 @@ export const api = createApi({
                 method: "POST",
                 body: booking,
               }),
-        }),
+            }),
+   getRoomAvailability: builder.query({
+      query: ({ hotelId, checkIn, checkOut }) =>
+        `hotels/${hotelId}/availability?checkIn=${checkIn}&checkOut=${checkOut}`,
+      transformResponse: (response) => response.availableRooms,
     }),
+    
+    getBookingsForUser: builder.query({
+      query: () => "bookings/user", 
+      transformResponse: (response) => response, 
+      providesTags: ["Bookings"], 
+    }),
+    cancelBooking: builder.mutation({
+      query: (bookingId) => ({
+        url: `bookings/${bookingId}/cancel`, 
+        method: "PUT",
+      }),
+      invalidatesTags: ["Bookings"], 
+    }),
+getTopTrendingHotels: builder.query({
+      query: () => 'hotels/top-trending',
+    }),
+  }),
 });
 
 export const { 
@@ -52,4 +73,8 @@ export const {
   useGetHotelByIdQuery,
   useCreateHotelMutation,
   useCreateBookingMutation,
+  useGetRoomAvailabilityQuery,
+  useGetBookingsForUserQuery,
+  useCancelBookingMutation,
+  useGetTopTrendingHotelsQuery
    } = api; //this is a put,this encapsulates the query and the hook like loading state, error state, data, etc.
