@@ -9,6 +9,7 @@ import HotelPage from './pages/hotel.page';
 import HotelsPage from './pages/hotels.page';
 import CreateHotelPage from './pages/create-hotel.page';
 import AccountPage from './pages/account.page';
+import AISearchResults from './components/AISearchResult';
 
 import RootLayout from './layouts/root-layout.layout';
 import MainLayout from './layouts/main.layout';
@@ -17,6 +18,7 @@ import {Provider} from 'react-redux';
 import { ClerkProvider } from '@clerk/clerk-react';
 import ProtectedLayout from './layouts/protected.layout';
 import AdminProtectedLayout from './layouts/admin-protected.layout';
+import AboutUs from './components/AboutUs';
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
@@ -35,6 +37,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/" element={<HomePage />} />
             <Route path="/hotels" element={<HotelsPage/>}/>
             <Route path="/hotels/:id" element={<HotelPage />} />
+            <Route path="/about" element={<AboutUs/>} />
 
             <Route element={<ProtectedLayout />}> 
             <Route path="/account" element={<AccountPage />}  />
