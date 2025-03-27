@@ -1,13 +1,14 @@
-import { useState } from "react"
+import { useState,useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { useGetHotelByIdQuery, useCreateBookingMutation } from "@/lib/api"
+import { useGetHotelByIdQuery,useAddToFavoritesMutation,useRemoveFromFavoritesMutation,useGetUserFavoritesQuery} from "@/lib/api"
 import { Coffee, MapPin, MenuIcon as Restaurant, Star, Tv, Wifi } from "lucide-react"
 import { useParams, useNavigate } from "react-router" 
 import { Skeleton } from "@/components/ui/skeleton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import BookingForm from "@/components/createBookingForm"
 import { useUser } from "@clerk/clerk-react" 
+import { toast } from "sonner"
 
 // Map of amenity IDs to their display components (unchanged)
 const amenityComponents = {
@@ -29,21 +30,56 @@ export default function HotelPage() {
   const { data: hotel, isLoading, isError } = useGetHotelByIdQuery(id)
   const [isBookingFormOpen, setIsBookingFormOpen] = useState(false)
   const { isLoaded, isSignedIn } = useUser() 
+  const [addToFavorites, { isLoading: isAddingFavorite }] = useAddToFavoritesMutation()
+  const [removeFromFavorites, { isLoading: isRemovingFavorite }] = useRemoveFromFavoritesMutation()
+  const { data: favorites, isLoading: isFavoritesLoading, refetch } = useGetUserFavoritesQuery(undefined, {
+    skip: !isSignedIn,
+  });
+  const [isFavorite, setIsFavorite] = useState(false);
+  useEffect(() => {
+    if (favorites && id) {
+      const isFav = favorites.some(fav => fav._id === id)
+      setIsFavorite(isFav)
+    }
+  }, [favorites, id])
 
   const handleBookingSubmit = async (bookingData) => {
-    setIsBookingFormOpen(false);
-  };
+    setIsBookingFormOpen(false)
+  }
 
   const handleBookNowClick = () => {
-    if (!isLoaded) return;
+    if (!isLoaded) return
     if (!isSignedIn) {
-      navigate("/sign-in");
+      navigate("/sign-in")
     } else {
-      setIsBookingFormOpen(true);
+      setIsBookingFormOpen(true)
+    }
+  }
+
+  const handleFavoriteToggle = async () => {
+    if (!isLoaded || !isSignedIn) {
+      navigate("/sign-in");
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        await removeFromFavorites(id).unwrap();
+        setIsFavorite(false);
+        toast.success("Hotel removed from favorites!");
+      } else {
+        await addToFavorites(id).unwrap();
+        setIsFavorite(true);
+        toast.success("Hotel added to favorites!");
+      }
+      
+      refetch();
+    } catch (error) {
+      toast.error(`Failed to ${isFavorite ? 'remove' : 'add'} hotel ${isFavorite ? 'from' : 'to'} favorites`);
     }
   };
 
-  if (isLoading)
+  if (isLoading || isFavoritesLoading)
     return (
      
       <div className="container mx-auto px-4 py-8 min-h-screen">
@@ -118,9 +154,18 @@ export default function HotelPage() {
                 <p className="text-muted-foreground">{hotel.location}</p>
               </div>
             </div>
-            <Button variant="outline" size="icon">
-              <Star className="h-4 w-4" />
-              <span className="sr-only">Add to favorites</span>
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={handleFavoriteToggle}
+              disabled={isAddingFavorite || isRemovingFavorite}
+            >
+              <Star 
+                className={`h-4 w-4 ${isFavorite ? 'fill-yellow-400 text-yellow-400' : ''}`}
+              />
+              <span className="sr-only">
+                {isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              </span>
             </Button>
           </div>
           <div className="flex items-center space-x-1">
