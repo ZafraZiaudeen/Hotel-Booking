@@ -17,6 +17,7 @@ import {
   useCancelBookingMutation,
 } from "@/lib/api";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const BookingListing = () => {
   const {
@@ -27,7 +28,7 @@ const BookingListing = () => {
   const [cancelBooking] = useCancelBookingMutation();
   const [bookingToCancel, setBookingToCancel] = useState(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false); // Add flag to prevent double cancellation
+  const [isCancelling, setIsCancelling] = useState(false);
 
   const handleCancelBooking = async () => {
     if (bookingToCancel && !isCancelling) {
@@ -54,7 +55,6 @@ const BookingListing = () => {
     setCancelDialogOpen(true);
   };
 
-  // Helper function to determine if the "Cancel Booking" button should be shown
   const canCancelBooking = (booking) => {
     if (booking.status !== "ongoing") return false;
 
@@ -62,30 +62,54 @@ const BookingListing = () => {
     const creationTime = new Date(booking.createdAt);
     const checkInDate = new Date(booking.checkIn);
 
-    // Normalize dates to compare only the date part (ignoring time)
     const today = new Date(currentTime);
     today.setHours(0, 0, 0, 0);
     const checkInDay = new Date(checkInDate);
     checkInDay.setHours(0, 0, 0, 0);
 
-    // Calculate time since booking creation in hours and minutes
     const hoursSinceCreation = (currentTime.getTime() - creationTime.getTime()) / (1000 * 60 * 60);
     const minutesSinceCreation = (currentTime.getTime() - creationTime.getTime()) / (1000 * 60);
 
-    // Check if the booking is for the current date or within 48 hours of creation
     const isCheckInToday = today.getTime() === checkInDay.getTime();
     const isWithin48HoursOfCreation = hoursSinceCreation <= 48;
 
     if (isCheckInToday || isWithin48HoursOfCreation) {
-      // 30-minute cancellation window
       return minutesSinceCreation <= 30;
     } else {
-      // 48-hour cancellation window
       return hoursSinceCreation <= 48;
     }
   };
 
-  if (isLoading) return <div>Loading bookings...</div>;
+  if (isLoading) {
+    return (
+      <div className="space-y-12">
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-6 w-20" />
+          </div>
+          <div className="grid gap-6">
+            {[...Array(2)].map((_, index) => (
+              <SkeletonBookingCard key={index} />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-6 w-20" />
+          </div>
+          <div className="grid gap-6">
+            {[...Array(2)].map((_, index) => (
+              <SkeletonBookingCard key={index} />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
     console.log("Error object:", error);
 
@@ -263,9 +287,8 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
     (new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24)
   );
 
-  // Calculate total price based on roomAssignments
   const totalPrice = booking.roomAssignments.reduce((sum, ra) => {
-    const pricePerNight = ra.price || 0; // Use 0 if price is missing
+    const pricePerNight = ra.price || 0;
     const numRooms = ra.roomNumbers.length;
     return sum + pricePerNight * numRooms * nights;
   }, 0);
@@ -366,6 +389,38 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
                     Book Again
                   </Button>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const SkeletonBookingCard = () => {
+  return (
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="flex flex-col md:flex-row">
+          <Skeleton className="w-full md:w-1/3 lg:w-1/4 h-[180px]" />
+          <div className="p-5 md:p-6 flex-1">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div className="space-y-4 w-full">
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                  <Skeleton className="h-12 w-full" />
+                </div>
+              </div>
+              <div className="flex flex-col items-start md:items-end mt-4 md:mt-0 space-y-4">
+                <Skeleton className="h-16 w-32" />
+                <Skeleton className="h-10 w-32" />
               </div>
             </div>
           </div>

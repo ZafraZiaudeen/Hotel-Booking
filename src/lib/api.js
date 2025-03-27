@@ -61,8 +61,28 @@ export const api = createApi({
       }),
       invalidatesTags: ["Bookings"], 
     }),
-getTopTrendingHotels: builder.query({
-      query: () => 'hotels/top-trending',
+  getTopTrendingHotels: builder.query({
+      query: () => "hotels/top-trending",
+    }),
+
+    addToFavorites: builder.mutation({
+  query: (hotelId) => ({
+    url: "favorites",
+    method: "POST",
+    body: { hotelId },
+  }),
+}),
+    getUserFavorites: builder.query({
+      query: () => "favorites",
+      transformResponse: (response) => response, 
+      providesTags: ["Favorites"], 
+    }),
+    removeFromFavorites: builder.mutation({
+      query: (hotelId) => ({
+        url: `favorites/${hotelId}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Favorites"], 
     }),
   }),
 });
@@ -76,5 +96,8 @@ export const {
   useGetRoomAvailabilityQuery,
   useGetBookingsForUserQuery,
   useCancelBookingMutation,
-  useGetTopTrendingHotelsQuery
+  useGetTopTrendingHotelsQuery,
+  useAddToFavoritesMutation,
+  useGetUserFavoritesQuery,
+  useRemoveFromFavoritesMutation,
    } = api; //this is a put,this encapsulates the query and the hook like loading state, error state, data, etc.
