@@ -15,14 +15,14 @@ export default function Hero({ onSearchTriggered }) {
     if (!searchQuery) return;
     console.log(searchQuery);
     dispatch(submit(searchQuery));
-    onSearchTriggered(); // Call the callback to trigger scroll
+    onSearchTriggered(); 
   };
 
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchInput(value);
     if (value.trim() === "") {
-      dispatch(submit("")); // Clear search when input is empty
+      dispatch(submit("")); 
     }
   };
 
