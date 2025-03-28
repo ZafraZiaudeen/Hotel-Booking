@@ -5,7 +5,7 @@ const Backend_URL="http://localhost:8000";
 export const api = createApi({
     reducerPath: "api",
    baseQuery: fetchBaseQuery({
-    baseUrl: `${Backend_URL}/api/`,
+    baseUrl: "https://aidf-horizone-backend-zafra.onrender.com/api/",
     prepareHeaders: async (headers, { getState }) => {
       const token = await window?.Clerk?.session?.getToken();
       console.log(token);
