@@ -18,6 +18,7 @@ import {
 } from "@/lib/api";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router-dom"; 
 
 const BookingListing = () => {
   const {
@@ -283,6 +284,7 @@ const BookingListing = () => {
 };
 
 const BookingCard = ({ booking, onCancel, showCancelButton }) => {
+  const navigate = useNavigate();
   const nights = Math.round(
     (new Date(booking.checkOut) - new Date(booking.checkIn)) / (1000 * 60 * 60 * 24)
   );
@@ -292,6 +294,11 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
     const numRooms = ra.roomNumbers.length;
     return sum + pricePerNight * numRooms * nights;
   }, 0);
+
+  const handleBookAgain = () => {
+    // Navigate to the hotel page using the hotelId from the booking
+    navigate(`/hotels/${booking.hotelId}`);
+  };
 
   return (
     <Card className="overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -385,7 +392,11 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
                 )}
 
                 {!showCancelButton && booking.status === "completed" && (
-                  <Button variant="outline" className="mt-4 w-full md:w-auto">
+                  <Button
+                    variant="outline"
+                    className="mt-4 w-full md:w-auto"
+                    onClick={handleBookAgain} 
+                  >
                     Book Again
                   </Button>
                 )}
