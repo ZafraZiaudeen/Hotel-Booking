@@ -16,10 +16,15 @@ export const api = createApi({
   }),
   
     endpoints: (builder) => ({ // endpoints means the calls that we want to make to the backend from frontend
-        getHotels: builder.query({
-            query: () => "hotels",
-            providesTags: ["Hotels"],
-          }),
+       getHotels: builder.query({
+      query: ({ location = "", sortByPrice = "" }) => {
+        const queryParams = new URLSearchParams();
+        if (location) queryParams.append("location", location);
+        if (sortByPrice) queryParams.append("sortByPrice", sortByPrice);
+        return `hotels${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+      },
+      providesTags: ["Hotels"],
+    }),
           getHotelById: builder.query({
             query: (id) => `hotels/${id}`,
           }),
@@ -84,6 +89,9 @@ export const api = createApi({
       }),
       invalidatesTags: ["Favorites"], 
     }),
+    getHotelLocations: builder.query({
+      query: () => "hotels/locations",
+    }),
   }),
 });
 
@@ -100,4 +108,5 @@ export const {
   useAddToFavoritesMutation,
   useGetUserFavoritesQuery,
   useRemoveFromFavoritesMutation,
+  useGetHotelLocationsQuery,
    } = api; //this is a put,this encapsulates the query and the hook like loading state, error state, data, etc.

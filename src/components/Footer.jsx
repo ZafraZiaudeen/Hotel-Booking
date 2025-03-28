@@ -38,6 +38,11 @@ function Footer() {
                   About Us
                 </Link>
               </li>
+              <li>
+                <Link to="/favorites" className="text-gray-400 hover:text-white transition-colors">
+                  Wish List
+                </Link>
+              </li>
             </ul>
           </div>
         </div>
