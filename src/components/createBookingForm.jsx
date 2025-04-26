@@ -28,6 +28,8 @@ import {
   useGetRoomAvailabilityQuery,
 } from "@/lib/api";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useUser } from "@clerk/clerk-react"; // Import Clerk hook
 
 const roomSelectionSchema = z.object({
   roomType: z.string({ required_error: "Please select a room type" }),
@@ -122,9 +124,11 @@ export default function BookingForm({
   isLoading,
   onBookingSuccess,
 }) {
+  const navigate = useNavigate(); // Initialize navigate
+  const { isLoaded, isSignedIn } = useUser(); // Initialize Clerk auth
   const [availableRooms, setAvailableRooms] = useState(hotel?.rooms || []);
   const [availabilityError, setAvailabilityError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Add flag to prevent double submission
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -218,33 +222,50 @@ export default function BookingForm({
     );
   };
 
-  const handleSubmit = async (data, event) => {
-    event.preventDefault();
-    if (isSubmitting) return; 
+  const handleSubmit = async (bookingData) => {
+    if (!isLoaded) {
+      console.log("Auth not loaded yet, waiting...");
+      return;
+    }
+    if (!isSignedIn) {
+      console.log("User not signed in, redirecting to /sign-in");
+      navigate("/sign-in");
+      toast.error("Please sign in to create a booking");
+      return;
+    }
 
-    setIsSubmitting(true); 
+    if (isSubmitting) {
+      console.log("Form already submitting, ignoring duplicate submission");
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
-      const bookingData = {
-        ...data,
-        hotelId: hotel._id,
-        checkIn: data.checkIn.toISOString(),
-        checkOut: data.checkOut.toISOString(),
-      };
+      console.log("Submitting booking data:", bookingData);
+      const booking = await createBooking({
+        ...bookingData,
+        hotelId: hotel._id, // Include hotelId
+      }).unwrap();
+      console.log("Booking created:", booking);
 
-    
+      if (!booking._id) {
+        throw new Error("Booking ID not returned from server");
+      }
 
-      const toastId = toast.loading("Creating booking...");
-      const result = await createBooking(bookingData).unwrap();
-
-      toast.success("Booking created successfully", { id: toastId });
+      const paymentUrl = `/booking/payment?bookingId=${booking._id}`;
+      console.log("Navigating to:", paymentUrl);
+      navigate(paymentUrl);
+      toast.success("Booking created, proceed to payment");
       await onSubmit(bookingData);
-      form.reset();
-      if (onBookingSuccess) onBookingSuccess();
+      if (onBookingSuccess) {
+        onBookingSuccess(booking);
+      }
     } catch (error) {
-      console.error("Booking failed:", error);
-      toast.error("Failed to create booking");
+      console.error("Booking creation failed:", error);
+      toast.error("Booking failed: " + (error.data?.message || error.message));
     } finally {
-      setIsSubmitting(false); 
+      setIsSubmitting(false);
     }
   };
 

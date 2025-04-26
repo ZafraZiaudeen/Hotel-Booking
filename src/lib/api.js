@@ -1,11 +1,11 @@
 import { createApi,fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const Backend_URL="http://localhost:8000";
+const BACKEND_URL="https://aidf-horizone-backend-zafra.onrender.com";
 
 export const api = createApi({
-    reducerPath: "api",
-   baseQuery: fetchBaseQuery({
-    baseUrl: "https://aidf-horizone-backend-zafra.onrender.com/api/",
+  reducerPath: "api",
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${BACKEND_URL}/api/`,
     prepareHeaders: async (headers, { getState }) => {
       return new Promise((resolve) => {
         async function checkToken() {
@@ -100,6 +100,18 @@ export const api = createApi({
     getHotelLocations: builder.query({
       query: () => "hotels/locations",
     }),
+    getBookingById: builder.query({
+      query: (id) => `bookings/${id}`,
+    }),
+    createCheckoutSession: builder.mutation({
+      query: () => ({
+        url: `payments/create-checkout-session`,
+        method: "POST",
+      }),
+    }),
+    getCheckoutSessionStatus: builder.query({
+      query: (sessionId) => `payments/session-status?session_id=${sessionId}`,
+    }),
   }),
 });
 
@@ -117,4 +129,7 @@ export const {
   useGetUserFavoritesQuery,
   useRemoveFromFavoritesMutation,
   useGetHotelLocationsQuery,
+  useGetBookingByIdQuery,
+  useCreateCheckoutSessionMutation,
+  useGetCheckoutSessionStatusQuery
    } = api; //this is a put,this encapsulates the query and the hook like loading state, error state, data, etc.
