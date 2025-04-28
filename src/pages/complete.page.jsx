@@ -7,10 +7,10 @@ function CompletePage() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
 
-  // Redirect to home if sessionId is missing
-  if (!sessionId) {
-    return <Navigate to="/" />;
-  }
+  // // Redirect to home if sessionId is missing
+  // if (!sessionId) {
+  //   return <Navigate to="/" />;
+  // }
 
   const { data, isLoading, isError } = useGetCheckoutSessionStatusQuery(sessionId);
 
