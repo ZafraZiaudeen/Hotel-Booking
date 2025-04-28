@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Hotel, MapPin, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Hotel, MapPin, AlertCircle, Search } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import {
   useGetBookingsForUserQuery,
@@ -18,7 +19,7 @@ import {
 } from "@/lib/api";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 const BookingListing = () => {
   const {
@@ -30,6 +31,9 @@ const BookingListing = () => {
   const [bookingToCancel, setBookingToCancel] = useState(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const navigate = useNavigate();
 
   const handleCancelBooking = async () => {
     if (bookingToCancel && !isCancelling) {
@@ -81,9 +85,23 @@ const BookingListing = () => {
     }
   };
 
+  // Filter bookings based on search query
+  const filterBookings = (bookings) => {
+    if (!searchQuery) return bookings;
+    const query = searchQuery.toLowerCase();
+    return bookings.filter(
+      (booking) =>
+        booking.hotelName.toLowerCase().includes(query) ||
+        booking.location.toLowerCase().includes(query)
+    );
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-12">
+        <div className="mb-6">
+          <Skeleton className="h-10 w-64" />
+        </div>
         <div>
           <div className="flex items-center justify-between mb-4">
             <Skeleton className="h-8 w-48" />
@@ -95,7 +113,6 @@ const BookingListing = () => {
             ))}
           </div>
         </div>
-
         <div>
           <div className="flex items-center justify-between mb-4">
             <Skeleton className="h-8 w-48" />
@@ -112,8 +129,6 @@ const BookingListing = () => {
   }
 
   if (error) {
-    console.log("Error object:", error);
-
     if (
       error?.status === 404 ||
       error?.data?.name === "NotFoundError" ||
@@ -122,6 +137,9 @@ const BookingListing = () => {
     ) {
       return (
         <Card className="bg-muted/50">
+          <div className="mb-6">
+            <Skeleton className="h-10 w-64" />
+          </div>
           <CardContent className="flex flex-col items-center justify-center py-10 text-center">
             <Hotel className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium mb-2">No Bookings Yet</h3>
@@ -139,15 +157,28 @@ const BookingListing = () => {
     return <div>Error loading bookings: {error.message || "An unexpected error occurred"}</div>;
   }
 
-  const upcomingBookings = bookings.filter(
-    (booking) => booking.status === "ongoing"
+  const upcomingBookings = filterBookings(
+    bookings.filter((booking) => booking.status === "ongoing")
   );
-  const pastBookings = bookings.filter(
-    (booking) => booking.status === "completed" || booking.status === "cancelled"
+  const pastBookings = filterBookings(
+    bookings.filter((booking) => booking.status === "completed" || booking.status === "cancelled")
   );
 
   return (
     <>
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search by hotel name or location"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+      </div>
+
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl md:text-2xl font-semibold">Upcoming Bookings</h2>
@@ -171,14 +202,19 @@ const BookingListing = () => {
           <Card className="bg-muted/50">
             <CardContent className="flex flex-col items-center justify-center py-10 text-center">
               <Calendar className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Upcoming Bookings</h3>
+              <h3 className="text-lg font-medium mb-2">
+                {searchQuery ? "No Matching Upcoming Bookings" : "No Upcoming Bookings"}
+              </h3>
               <p className="text-muted-foreground max-w-md">
-                You don’t have any upcoming bookings. When you book a hotel, your
-                reservations will appear here.
+                {searchQuery
+                  ? "No upcoming bookings match your search. Try a different hotel name or location."
+                  : "You don’t have any upcoming bookings. When you book a hotel, your reservations will appear here."}
               </p>
-              <Button className="mt-6" variant="outline">
-                Browse Hotels
-              </Button>
+              {!searchQuery && (
+                <Button className="mt-6" variant="outline" asChild>
+                  <a href="/hotels">Browse Hotels</a>
+                </Button>
+              )}
             </CardContent>
           </Card>
         )}
@@ -206,10 +242,13 @@ const BookingListing = () => {
           <Card className="bg-muted/50">
             <CardContent className="flex flex-col items-center justify-center py-10 text-center">
               <Clock className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No Past Bookings</h3>
+              <h3 className="text-lg font-medium mb-2">
+                {searchQuery ? "No Matching Past Bookings" : "No Past Bookings"}
+              </h3>
               <p className="text-muted-foreground max-w-md">
-                You don’t have any past bookings. After your stays, your booking
-                history will appear here.
+                {searchQuery
+                  ? "No past bookings match your search. Try a different hotel name or location."
+                  : "You don’t have any past bookings. After your stays, your booking history will appear here."}
               </p>
             </CardContent>
           </Card>
@@ -296,7 +335,6 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
   }, 0);
 
   const handleBookAgain = () => {
-    // Navigate to the hotel page using the hotelId from the booking
     navigate(`/hotels/${booking.hotelId}`);
   };
 
@@ -395,7 +433,7 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
                   <Button
                     variant="outline"
                     className="mt-4 w-full md:w-auto"
-                    onClick={handleBookAgain} 
+                    onClick={handleBookAgain}
                   >
                     Book Again
                   </Button>
