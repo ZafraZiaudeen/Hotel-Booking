@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useGetCheckoutSessionStatusQuery } from "@/lib/api";
-import { Link, useSearchParams, Navigate } from "react-router-dom"; // Fixed import
+import { Link, useSearchParams, Navigate } from "react-router-dom"; 
 import { format } from "date-fns";
 
 function CompletePage() {
@@ -8,9 +8,9 @@ function CompletePage() {
   const sessionId = searchParams.get("session_id");
 
   // // Redirect to home if sessionId is missing
-  // if (!sessionId) {
-  //   return <Navigate to="/" />;
-  // }
+  if (!sessionId) {
+    return <Navigate to="/" />;
+  }
 
   const { data, isLoading, isError } = useGetCheckoutSessionStatusQuery(sessionId);
 

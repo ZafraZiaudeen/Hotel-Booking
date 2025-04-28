@@ -35,28 +35,27 @@ createRoot(document.getElementById('root')).render(
     <Provider store={store}>
     <BrowserRouter>
       <Routes>
-        <Route element={<RootLayout />}>
-          <Route element={<MainLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/hotels" element={<HotelsPage/>}/>
-            <Route path="/hotels/:id" element={<HotelPage />} />
-            <Route path="/about" element={<AboutUs/>} />
-
-
-            <Route element={<ProtectedLayout />}> 
-            <Route path="/account" element={<AccountPage />}  />
-            <Route path="/favorites" element={<FavouritePage/>} />
-            <Route path="/booking/payment" element={<PaymentPage />} />
-            <Route path="/booking/complete" element={<CompletePage />} />
-            <Route element={<AdminProtectedLayout/>}>
-            <Route path="/hotels/create" element={<CreateHotelPage />} />
+      <Routes>
+            <Route element={<RootLayout />}>
+              <Route element={<MainLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/hotels" element={<HotelsPage />} />
+                <Route path="/hotels/:id" element={<HotelPage />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route element={<ProtectedLayout />}>
+                  <Route path="/account" element={<AccountPage />} />
+                  <Route path="/favorites" element={<FavouritePage />} />
+                  <Route path="/booking/payment" element={<PaymentPage />} />
+                  <Route path="/booking/complete" element={<CompletePage />} />
+                  <Route element={<AdminProtectedLayout />}>
+                    <Route path="/hotels/create" element={<CreateHotelPage />} />
+                  </Route>
+                </Route>
+              </Route>
+              <Route path="/sign-in" element={<SignInPage />} />
+              <Route path="/sign-up" element={<SignUpPage />} />
             </Route>
-           </Route>
-
-          </Route>
-          <Route path="/sign-in" element={<SignInPage />} />
-          <Route path="/sign-up" element={<SignUpPage />} />
-        </Route>
+          </Routes>
       </Routes>
     </BrowserRouter>
     </Provider>
