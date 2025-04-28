@@ -321,7 +321,6 @@ const BookingListing = () => {
     </>
   );
 };
-
 const BookingCard = ({ booking, onCancel, showCancelButton }) => {
   const navigate = useNavigate();
   const nights = Math.round(
@@ -395,8 +394,8 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start">
-                    <Hotel className="h-4 w-4 mr-2 text-primary mt-1" />
+                  <div className="flex items-center">
+                    <Hotel className="h-4 w-4 mr-2 text-primary" />
                     <div>
                       <p className="text-sm font-medium">Rooms</p>
                       {booking.roomAssignments.map((ra, index) => (
@@ -406,6 +405,18 @@ const BookingCard = ({ booking, onCancel, showCancelButton }) => {
                           </p>
                         </div>
                       ))}
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <CreditCard className="h-4 w-4 mr-2 text-primary" />
+                    <div>
+                      <p className="text-sm font-medium">Payment Status</p>
+                      <p className={`text-sm capitalize ${
+                        booking.paymentStatus === "completed" ? "text-green-600" :
+                        booking.paymentStatus === "failed" ? "text-red-600" : "text-yellow-600"
+                      }`}>
+                        {booking.paymentStatus}
+                      </p>
                     </div>
                   </div>
                 </div>
