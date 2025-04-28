@@ -1,26 +1,20 @@
-import { useAuth } from '@clerk/clerk-react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { useUser } from "@clerk/clerk-react";
+import { Navigate, Outlet } from "react-router";
 
-const ProtectedLayout = ({ children }) => {
-  const { isSignedIn, isLoaded } = useAuth();
-  const location = useLocation();
+const ProtectedLayout = () => {
+  const { isLoaded, isSignedIn, user } = useUser();
 
   if (!isLoaded) {
     return null;
   }
 
-  if (!isSignedIn) {
-    // Redirect to sign-in, preserving the current URL
-    const redirectUrl = `${location.pathname}${location.search}`;
-    return (
-      <Navigate
-        to={`/sign-in?redirect_url=${encodeURIComponent(redirectUrl)}`}
-        replace
-      />
-    );
+  if (isLoaded && !isSignedIn) {
+    return <Navigate to="/sign-in" />;
   }
 
-  return children;
+  console.log(user);
+
+  return <Outlet />;
 };
 
 export default ProtectedLayout;
