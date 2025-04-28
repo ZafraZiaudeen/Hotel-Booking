@@ -1,13 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { useGetCheckoutSessionStatusQuery } from "@/lib/api";
-import { Link, useSearchParams, Navigate } from "react-router-dom"; 
+import { Link, useSearchParams, Navigate } from "react-router-dom";
 import { format } from "date-fns";
 
 function CompletePage() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
 
-  // // Redirect to home if sessionId is missing
+  // Redirect to home if sessionId is missing
   if (!sessionId) {
     return <Navigate to="/" />;
   }
@@ -16,9 +16,52 @@ function CompletePage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
+      <section className="max-w-3xl mx-auto p-6 my-8">
+        {/* Skeleton Loader */}
+        <div className="animate-pulse">
+          <div className="flex justify-center mb-6">
+            <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
+          </div>
+          <div className="h-8 bg-gray-200 rounded w-3/4 mx-auto mb-4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto mb-6"></div>
+          {/* Hotel Card Skeleton */}
+          <div className="border rounded-lg overflow-hidden">
+            <div className="h-48 bg-gray-200"></div>
+            <div className="p-4 bg-gray-50">
+              <div className="h-6 bg-gray-200 rounded w-1/2 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+            </div>
+          </div>
+          {/* Booking Details Skeleton */}
+          <div className="mt-6 border-t pt-4">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
+            <div className="bg-gray-50 p-4 rounded-md">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i}>
+                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-1"></div>
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Next Steps Skeleton */}
+          <div className="mt-6 border-t pt-4">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-2"></div>
+            <div className="space-y-2">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-4 bg-gray-200 rounded w-full"></div>
+              ))}
+            </div>
+          </div>
+          {/* Buttons Skeleton */}
+          <div className="mt-6 flex justify-center gap-4">
+            <div className="h-10 bg-gray-200 rounded w-32"></div>
+          </div>
+        </div>
+      </section>
     );
   }
 
@@ -28,7 +71,7 @@ function CompletePage() {
         <h2 className="text-2xl font-bold mb-4 text-red-600">
           Something went wrong
         </h2>
-        <p className="mb-4">
+        <p className="mb-4 text-gray-600">
           We couldn't process your payment information. Please try again or
           contact support.
         </p>
@@ -54,7 +97,7 @@ function CompletePage() {
 
     // Calculate number of nights
     const nights = Math.round(
-      (checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)
+      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
     );
 
     return (
@@ -82,9 +125,10 @@ function CompletePage() {
         <h2 className="text-2xl font-bold mb-4 text-center">
           Booking Confirmed!
         </h2>
-        <p className="text-center mb-4">
+        <p className="text-center mb-4 text-gray-600">
           Your payment has been processed successfully.
         </p>
+
         {/* Hotel Info Card */}
         <div className="mt-6 border rounded-lg overflow-hidden">
           <div className="relative h-48">
@@ -102,13 +146,18 @@ function CompletePage() {
             {data.hotel.rating && (
               <div className="flex items-center mb-2">
                 <span className="text-yellow-500 mr-1">★</span>
-                <span>{data.hotel.rating}</span>
+                <span>{data.hotel.rating.toFixed(1)}</span>
                 {data.hotel.reviews && (
                   <span className="text-gray-500 text-sm ml-1">
                     ({data.hotel.reviews} reviews)
                   </span>
                 )}
               </div>
+            )}
+            {data.hotel.amenities && (
+              <p className="text-gray-600 text-sm">
+                Amenities: {data.hotel.amenities.join(", ")}
+              </p>
             )}
           </div>
         </div>
@@ -125,11 +174,11 @@ function CompletePage() {
                 </p>
               </div>
               <div>
-                <p className="text-gray-600 text-sm">Room Types</p>
+                <p className="text-gray-600 text-sm">Room Assignments</p>
                 <p className="font-medium">
                   {data.booking.roomAssignments
-                    ?.map((ra) => `${ra.roomType} (${ra.roomNumbers.length} rooms)`)
-                    .join(", ")}
+                    ?.map((ra) => `${ra.roomType} (${ra.roomNumbers.join(", ")})`)
+                    .join(", ") || "N/A"}
                 </p>
               </div>
               <div>
@@ -152,19 +201,37 @@ function CompletePage() {
                   {data.booking.paymentStatus}
                 </p>
               </div>
+              <div>
+                <p className="text-gray-600 text-sm">Payment Method</p>
+                <p className="font-medium">{data.booking.paymentMethod}</p>
+              </div>
+              {data.booking.specialRequests && (
+                <div>
+                  <p className="text-gray-600 text-sm">Special Requests</p>
+                  <p className="font-medium">{data.booking.specialRequests}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
+        {/* Next Steps */}
         <div className="mt-6 border-t pt-4">
           <h3 className="text-lg font-semibold mb-2">What happens next?</h3>
-          <ul className="list-disc pl-5 space-y-1">
+          <ul className="list-disc pl-5 space-y-1 text-gray-600">
             <li>Present your booking ID upon arrival at the hotel</li>
             <li>Check-in time starts at 2:00 PM on {formattedCheckIn}</li>
             <li>Check-out time is before 12:00 PM on {formattedCheckOut}</li>
+            {data.booking.specialRequests && (
+              <li>
+                Your special requests have been noted and will be accommodated
+                where possible
+              </li>
+            )}
           </ul>
         </div>
 
+        {/* Contact Info */}
         <div className="mt-6 text-center text-sm text-gray-600">
           <p>
             If you have any questions, please contact{" "}
@@ -177,9 +244,13 @@ function CompletePage() {
           </p>
         </div>
 
+        {/* Action Buttons */}
         <div className="mt-6 flex justify-center gap-4">
           <Button asChild variant="outline">
             <Link to="/">Return to Home</Link>
+          </Button>
+          <Button asChild>
+            <Link to="/bookings">View All Bookings</Link>
           </Button>
         </div>
       </section>
@@ -189,7 +260,7 @@ function CompletePage() {
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md text-center">
       <h2 className="text-2xl font-bold mb-4">Payment Status Unknown</h2>
-      <p className="mb-4">
+      <p className="mb-4 text-gray-600">
         We couldn't determine the status of your payment. If you completed a
         booking, please check your email for confirmation.
       </p>
