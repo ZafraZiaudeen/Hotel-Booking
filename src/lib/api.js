@@ -112,6 +112,13 @@ export const api = createApi({
     getCheckoutSessionStatus: builder.query({
       query: (sessionId) => `payments/session-status?session_id=${sessionId}`,
     }),
+    sendBookingReceipt: builder.mutation({
+      query: (bookingId) => ({
+        url: "webhooks/send-booking-receipt",
+        method: "POST",
+        body: { bookingId },
+      }),
+    }),
   }),
 });
 
@@ -131,5 +138,6 @@ export const {
   useGetHotelLocationsQuery,
   useGetBookingByIdQuery,
   useCreateCheckoutSessionMutation,
-  useGetCheckoutSessionStatusQuery
+  useGetCheckoutSessionStatusQuery,
+  useSendBookingReceiptMutation
    } = api; //this is a put,this encapsulates the query and the hook like loading state, error state, data, etc.

@@ -1,17 +1,36 @@
 import { Button } from "@/components/ui/button";
-import { useGetCheckoutSessionStatusQuery } from "@/lib/api";
+import { useGetCheckoutSessionStatusQuery, useSendBookingReceiptMutation } from "@/lib/api";
 import { Link, useSearchParams, Navigate } from "react-router-dom";
 import { format } from "date-fns";
+import { useEffect, useState } from "react";
 
 function CompletePage() {
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get("session_id");
+  const [emailSent, setEmailSent] = useState(false);
 
   if (!sessionId) {
     return <Navigate to="/" />;
   }
 
   const { data, isLoading, isError } = useGetCheckoutSessionStatusQuery(sessionId);
+  const [sendBookingReceipt, { isLoading: isEmailLoading, error: emailError }] =
+    useSendBookingReceiptMutation();
+
+  // Automatically send email when payment is complete
+  useEffect(() => {
+    if (data?.status === "complete" && data?.bookingId && !emailSent && !isEmailLoading) {
+      sendBookingReceipt(data.bookingId)
+        .unwrap()
+        .then(() => {
+          setEmailSent(true);
+          console.log("Booking receipt email sent successfully");
+        })
+        .catch((error) => {
+          console.error("Failed to send booking receipt:", error);
+        });
+    }
+  }, [data, emailSent, isEmailLoading]);
 
   if (isLoading) {
     return (
@@ -122,6 +141,31 @@ function CompletePage() {
           <h2 className="text-2xl font-bold mb-4 text-center">
             Booking Confirmed!
           </h2>
+          
+          {emailSent && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-center text-green-700 text-sm">
+                ✓ Confirmation email has been sent to your registered email address
+              </p>
+            </div>
+          )}
+          
+          {emailError && (
+            <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-center text-yellow-700 text-sm">
+                ⚠️ Your booking is confirmed, but we couldn't send the email. Please check your bookings page.
+              </p>
+            </div>
+          )}
+          
+          {isEmailLoading && (
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-center text-blue-700 text-sm animate-pulse">
+                Sending confirmation email...
+              </p>
+            </div>
+          )}
+
           <p className="text-center mb-4 text-gray-600">
             Your payment has been processed successfully.
           </p>
