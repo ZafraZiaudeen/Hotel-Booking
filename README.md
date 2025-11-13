@@ -4,23 +4,25 @@
 The **Hotel Booking System** frontend is a modern, responsive web application built with **React.js**, designed to streamline hotel browsing, searching, and booking. It features a sleek, user-friendly interface styled with **Tailwind CSS** and **Shadcn** components, leveraging **Redux Toolkit** for state management and **React Router** for seamless navigation. This frontend interacts with a backend API to fetch and manage hotel data, providing an engaging user experience.
 
 ## Features
-- 🌍 **Browse Trending Hotels**: Explore a curated list of popular hotels worldwide.  
-- 🔍 **Smart Search**: Search hotels by location or query, powered by AI-based vector retrieval.  
-- 🖼️ **Hotel Visuals**: View high-quality images for each hotel.  
-- ⭐ **Reviews & Ratings**: Access user reviews and ratings.  
-- 💰 **Price Details**: Compare hotel prices dynamically.  
-- 📍 **Location Tabs**: Filter hotels by location with interactive tabs.  
-- 🛠️ **Hotel Creation**: Authenticated admins can add new hotels via a form.  
+- 🌍 **Browse Trending Hotels**: Explore a curated list of popular hotels worldwide.
+- 🔍 **Smart Search**: Search hotels by location or query, powered by AI-based vector retrieval.
+- 🖼️ **Hotel Visuals**: View high-quality images for each hotel.
+- ⭐ **Reviews & Ratings**: Access user reviews and ratings.
+- 💰 **Price Details**: Compare hotel prices dynamically.
+- 📍 **Location Tabs**: Filter hotels by location with interactive tabs.
+- 🛠️ **Hotel Creation**: Authenticated admins can add new hotels via a form.
 - 🔒 **Authentication**: Secure sign-in/sign-up powered by **Clerk**.
-- ⭐ **Wishlist**: Users can mark hotels as favorites by clicking a star icon, adding them to their wishlist.  
-- 🏨 **Hotel Details & Booking**: Clicking on a hotel navigates to a detailed page where users can:  
-  - View complete hotel details.  
-  - Add the hotel to their wishlist.  
-  - Book a hotel by selecting the number of rooms, check-in and check-out dates, and adding special requests.  
-- 📌 **My Account & Bookings**: Users can:  
-  - View all their completed bookings.  
-  - Cancel a booking from the **My Account** section in the navigation header.  
-- ❤️ **Wishlist Access**: Users can view their favorite hotels via a heart icon in the navigation.  
+- ⭐ **Wishlist**: Users can mark hotels as favorites by clicking a star icon, adding them to their wishlist.
+- 🏨 **Hotel Details & Booking**: Clicking on a hotel navigates to a detailed page where users can:
+  - View complete hotel details.
+  - Add the hotel to their wishlist.
+  - Book a hotel by selecting the number of rooms, check-in and check-out dates, and adding special requests.
+- 💳 **Payment Processing**: Secure payments via Stripe embedded checkout for booking confirmations.
+- 📧 **Booking Completion & Receipts**: After payment, users are redirected to a completion page and receive automatic email receipts via N8N automation.
+- 📌 **My Account & Bookings**: Users can:
+  - View all their completed bookings.
+  - Cancel a booking from the **My Account** section in the navigation header.
+- ❤️ **Wishlist Access**: Users can view their favorite hotels via a heart icon in the navigation.
 
 ## Repositories
 - **Backend**: [Hotel Booking Backend Repository] (https://github.com/ZafraZiaudeen/Hotel-Booking-Back_end)
@@ -66,6 +68,8 @@ The app will run at **http://localhost:5173**.
 ### Usage
 - **Home Page**: Displays trending hotels and a search bar powered by vector retrieval.
 - **Hotel Details**: Click a hotel card to view images, reviews, and pricing, add to wishlist, and book the hotel.
+- **Payment**: Proceed to secure Stripe checkout for booking payments.
+- **Booking Completion**: After successful payment, view booking details on the completion page and receive an email receipt.
 - **Wishlist**: Access favorite hotels via the heart icon in the navigation.
 - **Bookings**: View and manage bookings in the My Account section.
 - **Create Hotel**: Authenticated admins can access the form to add hotels.
